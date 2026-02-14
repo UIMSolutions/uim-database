@@ -8,6 +8,8 @@ module uim.database.library.storages.column;
 import core.sync.mutex : Mutex;
 import uim.database.library;
 
+mixin(ShowModule!());
+
 @safe:
 
 class ColumnStore {

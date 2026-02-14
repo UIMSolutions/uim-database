@@ -7,4 +7,5 @@ module uim.database.library.search;
 
 public {
     import uim.database.library.search.textindex;
+    import uim.database.library.search.spatial;;
 }

@@ -4,11 +4,6 @@ import core.sync.mutex : Mutex;
 import std.exception : enforce;
 import uim.database.library.jsoncompat : JSONValue;
 
-struct LinearModel {
-    string name;
-    double slope;
-    double intercept;
-}
 
 class PredictiveLibrary {
 private:

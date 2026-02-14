@@ -6,9 +6,11 @@
 module uim.database.library.interfaces.apikeyreader;
 
 import core.sync.mutex : Mutex;
-import std.datetime : Clock;
-import std.exception : enforce;
-import uim.database.library.jsoncompat : JSONValue;
+import uim.database.library;
+
+mixin(ShowModule!());
+
+@safe:
 
 interface ApiKeyReader {
   string readApiKey();

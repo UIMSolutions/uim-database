@@ -8,7 +8,10 @@ module uim.database.library.search.textindex;
 import core.sync.mutex : Mutex;
 import uim.database.library;
 
+mixin(ShowModule!());
+
 @safe:
+
 
 class TextSearchIndex {
 private:
@@ -101,16 +104,44 @@ public:
   }
   // #endregion contains
 
-  size_t getTokenFrequency(string table, string token) {
+  bool hasTermWithPrefix(string table, string prefix) {
     synchronized (_mutex) {
-      if (table in _tokenFreqByTable && token in _tokenFreqByTable[table]) {
-        return _tokenFreqByTable[table][token];
+      if (table in _tokenFreqByTable) {
+        auto tableMap = _tokenFreqByTable[table];
+        return tableMap.keys.any!(term => term.startsWith(prefix));
       }
-      return 0;
+      return false;
     }
   }
 
-  size_t getUniqueTokenCount(string table) {
+  // #region hasTable
+  bool hasAllTable(string[] tables) {
+    synchronized (_mutex) {
+      return tables.all!(table => table in _tokenFreqByTable);
+    }
+  }
+
+  bool hasAnyTable(string[] tables) {
+    synchronized (_mutex) {
+      return tables.any!(table => table in _tokenFreqByTable);
+    }
+  }
+
+  bool hasTable(string table) {
+    synchronized (_mutex) {
+      return table in _tokenFreqByTable;
+    }
+  }
+  // #endregion hasTable
+
+  size_t countTokenFrequency(string table, string token) {
+    synchronized (_mutex) {
+      return table in _tokenFreqByTable && token in _tokenFreqByTable[table] ? _tokenFreqByTable[table][token] : 0;
+    }
+  }
+
+  // Returns the total number of unique tokens indexed for the specified table
+  size_t countUniqueToken(string table) {
     synchronized (_mutex) {
       if (table in _tokenFreqByTable) {
         return _tokenFreqByTable[table].length;
@@ -119,7 +150,7 @@ public:
     }
   }
 
-  size_t getTotalTokenCount(string table) {
+  size_t countTotalToken(string table) {
     synchronized (_mutex) {
       if (table in _tokenFreqByTable) {
         return _tokenFreqByTable[table].values.sum;

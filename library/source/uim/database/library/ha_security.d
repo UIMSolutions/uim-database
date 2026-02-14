@@ -10,6 +10,10 @@ import std.datetime : Clock;
 import std.exception : enforce;
 import uim.database.library.jsoncompat : JSONValue;
 
+interface ApiKeyReader {
+    string readApiKey();
+}
+
 
 class ApiSecurity {
 private:
