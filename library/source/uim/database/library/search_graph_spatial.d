@@ -13,50 +13,8 @@ import std.exception : enforce;
 import std.math : sqrt;
 import std.range : retro;
 import std.array : array;
-import uim.database.library.jsoncompat : JSONValue;
-import uim.database.library.types : Point;
+import uim.database.library;
 
-class TextSearchIndex {
-private:
-    Mutex _mutex;
-    size_t[string][string] _tokenFreqByTable;
-
-public:
-    this() {
-        _mutex = new Mutex;
-    }
-
-    void indexText(string table, string text) {
-        synchronized (_mutex) {
-            foreach (token; tokenize(text)) {
-                _tokenFreqByTable[table][token] += 1;
-            }
-        }
-    }
-
-    JSONValue search(string table, string term) {
-        synchronized (_mutex) {
-            size_t count = 0;
-            if (auto tableMap = table in _tokenFreqByTable) {
-                if (auto tokenCount = term in *tableMap) {
-                    count = *tokenCount;
-                }
-            }
-            return JSONValue([
-                "table": JSONValue(table),
-                "term": JSONValue(term),
-                "hits": JSONValue(cast(long)count)
-            ]);
-        }
-    }
-
-private:
-    string[] tokenize(string input) {
-        import std.string : toLower, split;
-        auto normalized = input.toLower();
-        return normalized.split();
-    }
-}
 
 class GraphStore {
 private:

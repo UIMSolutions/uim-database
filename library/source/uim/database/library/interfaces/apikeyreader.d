@@ -3,15 +3,13 @@
 * License: Subject to the terms of the Apache 2.0 license, as written in the included LICENSE.txt file. 
 * Authors: Ozan Nurettin Süel (aka UI-Manufaktur UG *R.I.P*)
 *****************************************************************************************************************/
-module uim.database.library.config;
+module uim.database.library.interfaces.apikeyreader;
 
-struct ServerConfig {
-  string host = "0.0.0.0";
-  ushort port = 8080;
-  string apiKey = "dev-secret-key";
-  bool allowExternalCodeExecution = true;
-}
+import core.sync.mutex : Mutex;
+import std.datetime : Clock;
+import std.exception : enforce;
+import uim.database.library.jsoncompat : JSONValue;
 
-ServerConfig loadConfig() {
-  return ServerConfig();
+interface ApiKeyReader {
+  string readApiKey();
 }

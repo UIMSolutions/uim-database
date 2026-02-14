@@ -3,15 +3,8 @@
 * License: Subject to the terms of the Apache 2.0 license, as written in the included LICENSE.txt file. 
 * Authors: Ozan Nurettin Süel (aka UI-Manufaktur UG *R.I.P*)
 *****************************************************************************************************************/
-module uim.database.library.config;
+module uim.database.library.search;
 
-struct ServerConfig {
-  string host = "0.0.0.0";
-  ushort port = 8080;
-  string apiKey = "dev-secret-key";
-  bool allowExternalCodeExecution = true;
-}
-
-ServerConfig loadConfig() {
-  return ServerConfig();
+public {
+    import uim.database.library.search.textindex;
 }

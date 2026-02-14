@@ -225,20 +225,6 @@ JSONValue readBody(HTTPServerRequest req) {
 }
 
 void withAuth(HTTPServerRequest req, ApiSecurity security) {
-    static class HeaderApiKeyReader : ApiKeyReader {
-    private:
-        string _apiKey;
-
-    public:
-        this(string apiKey) {
-            _apiKey = apiKey;
-        }
-
-        override string readApiKey() {
-            return _apiKey;
-        }
-    }
-
-    auto reader = new HeaderApiKeyReader(req.headers.get("X-API-Key"));
-    security.authorize(reader);
+    auto key = req.headers.get("X-API-Key");
+    security.authorize(key);
 }
