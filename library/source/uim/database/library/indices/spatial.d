@@ -6,7 +6,7 @@ import std.algorithm : any, all;
 import std.array : empty;
 import std.math : sqrt;
 import uim.database.library.interfaces.spatialindex : ISpatialIndex;
-import uim.database.library.jsoncompat : Json;
+import uim.database.library.jsoncompat : Json, toJson;
 import uim.database.library.types : Point;
 
 @safe:

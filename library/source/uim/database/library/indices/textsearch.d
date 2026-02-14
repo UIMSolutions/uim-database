@@ -8,7 +8,7 @@ module uim.database.library.indices.textsearch;
 import core.sync.mutex : Mutex;
 import std.algorithm : all, any, sum;
 import std.string : startsWith;
-import uim.database.library.jsoncompat : Json;
+import uim.database.library.jsoncompat : Json, toJson;
 
 @safe:
 
@@ -34,13 +34,14 @@ public:
 
   bool isIndexed(string table) {
     synchronized (_mutex) {
-      return table in _tokenFreqByTable;
+      return (table in _tokenFreqByTable) !is null;
     }
   }
 
   bool isEmpty(string table) {
     synchronized (_mutex) {
-      return !(table in _tokenFreqByTable) || _tokenFreqByTable[table].empty;
+      auto pTable = table in _tokenFreqByTable;
+      return pTable is null || pTable.length == 0;
     }
   }
 
@@ -48,8 +49,8 @@ public:
   // Checks if all of the specified terms exist in the given table
   bool containsAllTerms(string table, string[] terms) {
     synchronized (_mutex) {
-      if (table in _tokenFreqByTable) {
-        auto tableMap = _tokenFreqByTable[table];
+      if (auto pTable = table in _tokenFreqByTable) {
+        auto tableMap = *pTable;
         return terms.all!(term => term in tableMap);
       }
       return false;
@@ -66,8 +67,8 @@ public:
   // Checks if any of the specified terms exist in the given table
   bool containsAnyTerm(string table, string[] terms) {
     synchronized (_mutex) {
-      if (table in _tokenFreqByTable) {
-        auto tableMap = _tokenFreqByTable[table];
+      if (auto pTable = table in _tokenFreqByTable) {
+        auto tableMap = *pTable;
         return terms.any!(term => term in tableMap);
       }
       return false;
@@ -92,7 +93,10 @@ public:
     */
   bool containsTerm(string table, string term) {
     synchronized (_mutex) {
-      return table in _tokenFreqByTable && term in _tokenFreqByTable[table];
+      if (auto pTable = table in _tokenFreqByTable) {
+        return (term in *pTable) !is null;
+      }
+      return false;
     }
   }
 
@@ -108,8 +112,8 @@ public:
 
   bool hasTermWithPrefix(string table, string prefix) {
     synchronized (_mutex) {
-      if (table in _tokenFreqByTable) {
-        auto tableMap = _tokenFreqByTable[table];
+      if (auto pTable = table in _tokenFreqByTable) {
+        auto tableMap = *pTable;
         return tableMap.keys.any!(term => term.startsWith(prefix));
       }
       return false;
@@ -119,34 +123,39 @@ public:
   // #region hasTable
   bool hasAllTable(string[] tables) {
     synchronized (_mutex) {
-      return tables.all!(table => table in _tokenFreqByTable);
+      return tables.all!(table => (table in _tokenFreqByTable) !is null);
     }
   }
 
   bool hasAnyTable(string[] tables) {
     synchronized (_mutex) {
-      return tables.any!(table => table in _tokenFreqByTable);
+      return tables.any!(table => (table in _tokenFreqByTable) !is null);
     }
   }
 
   bool hasTable(string table) {
     synchronized (_mutex) {
-      return table in _tokenFreqByTable;
+      return (table in _tokenFreqByTable) !is null;
     }
   }
   // #endregion hasTable
 
   size_t countTokenFrequency(string table, string token) {
     synchronized (_mutex) {
-      return table in _tokenFreqByTable && token in _tokenFreqByTable[table] ? _tokenFreqByTable[table][token] : 0;
+      if (auto pTable = table in _tokenFreqByTable) {
+        if (auto pToken = token in *pTable) {
+          return *pToken;
+        }
+      }
+      return 0;
     }
   }
 
   // Returns the total number of unique tokens indexed for the specified table
   size_t countUniqueToken(string table) {
     synchronized (_mutex) {
-      if (table in _tokenFreqByTable) {
-        return _tokenFreqByTable[table].length;
+      if (auto pTable = table in _tokenFreqByTable) {
+        return pTable.length;
       }
       return 0;
     }
@@ -154,8 +163,8 @@ public:
 
   size_t countTotalToken(string table) {
     synchronized (_mutex) {
-      if (table in _tokenFreqByTable) {
-        return _tokenFreqByTable[table].values.sum;
+      if (auto pTable = table in _tokenFreqByTable) {
+        return pTable.values.sum;
       }
       return 0;
     }
@@ -166,10 +175,10 @@ public:
   Json search(string table, string term) {
     synchronized (_mutex) {
       size_t count = 0;
-      if (table in _tokenFreqByTable) {
-        auto tableMap = _tokenFreqByTable[table];
-        if (term in tableMap) {
-          count = tableMap[term];
+      if (auto pTable = table in _tokenFreqByTable) {
+        auto tableMap = *pTable;
+        if (auto pTerm = term in tableMap) {
+          count = *pTerm;
         }
       }
       return [
@@ -183,11 +192,11 @@ public:
   Json search(string table, string[] terms) {
     synchronized (_mutex) {
       size_t totalHits = 0;
-      if (table in _tokenFreqByTable) {
-        auto tableMap = _tokenFreqByTable[table];
+      if (auto pTable = table in _tokenFreqByTable) {
+        auto tableMap = *pTable;
         foreach (term; terms) {
-          if (term in tableMap) {
-            totalHits += tableMap[term];
+          if (auto pTerm = term in tableMap) {
+            totalHits += *pTerm;
           }
         }
       }
@@ -202,8 +211,8 @@ public:
   Json searchAll(string table) {
     synchronized (_mutex) {
       size_t totalHits = 0;
-      if (table in _tokenFreqByTable) {
-        auto tableMap = _tokenFreqByTable[table];
+      if (auto pTable = table in _tokenFreqByTable) {
+        auto tableMap = *pTable;
         totalHits = tableMap.values.sum;
       }
       return [
@@ -216,8 +225,8 @@ public:
   Json searchUniqueTerms(string table) {
     synchronized (_mutex) {
       size_t uniqueTerms = 0;
-      if (table in _tokenFreqByTable) {
-        auto tableMap = _tokenFreqByTable[table];
+      if (auto pTable = table in _tokenFreqByTable) {
+        auto tableMap = *pTable;
         uniqueTerms = tableMap.length;
       }
       return [
@@ -230,10 +239,11 @@ public:
   Json searchTermFrequencies(string table) {
     synchronized (_mutex) {
       Json result = ["table": Json(table), "terms": Json()];
-      if (table in _tokenFreqByTable) {
-        auto tableMap = _tokenFreqByTable[table];
+      if (auto pTable = table in _tokenFreqByTable) {
+        auto tableMap = *pTable;
+        auto termsObj = result["terms"].get!(Json[string]);
         foreach (term, freq; tableMap) {
-          result["terms"][term] = Json(cast(long)freq);
+          termsObj[term] = Json(cast(long)freq);
         }
       }
       return result.toJson;
