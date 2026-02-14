@@ -5,3 +5,8 @@
 *****************************************************************************************************************/
 module uim.database.library.storages;
 
+public {
+	import uim.database.library.storages.storage;
+	import uim.database.library.storages.column;
+}
+

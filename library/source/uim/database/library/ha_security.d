@@ -8,11 +8,8 @@ module uim.database.library.ha_security;
 import core.sync.mutex : Mutex;
 import std.datetime : Clock;
 import std.exception : enforce;
+import uim.database.library.interfaces.apikeyreader : ApiKeyReader;
 import uim.database.library.jsoncompat : JSONValue;
-
-interface ApiKeyReader {
-    string readApiKey();
-}
 
 
 class ApiSecurity {

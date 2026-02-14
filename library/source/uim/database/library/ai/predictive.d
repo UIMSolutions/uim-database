@@ -1,7 +1,8 @@
-module uim.database.library.ml;
+module uim.database.library.ai.predictive;
 
 import core.sync.mutex : Mutex;
 import std.exception : enforce;
+import uim.database.library.ai.linear : LinearModel;
 import uim.database.library.jsoncompat : JSONValue;
 
 

@@ -1,11 +1,16 @@
 module uim.database.library.indices.spatial;
 
-import uim.database.library;
-
-mixin(ShowModule!());
+import core.sync.mutex : Mutex;
+import std.algorithm.searching : canFind;
+import std.algorithm : any, all;
+import std.array : empty;
+import std.math : sqrt;
+import uim.database.library.interfaces.spatialindex : ISpatialIndex;
+import uim.database.library.jsoncompat : Json;
+import uim.database.library.types : Point;
 
 @safe:
-class SpatialIndex {
+class SpatialIndex : ISpatialIndex {
 private:
   Mutex _mutex;
   Point[][string] _pointsByNamespace;
@@ -16,14 +21,14 @@ public:
   }
 
   // Adds a point to the specified namespace
-  void addPoint(string namespace, Point point) {
+  override void addPoint(string namespace, Point point) {
     synchronized (_mutex) {
       _pointsByNamespace[namespace] ~= point;
     }
   }
 
   // Returns all points within the specified radius from the center point in the given namespace
-  Json withinRadius(string namespace, Point center, double radius) {
+  override Json withinRadius(string namespace, Point center, double radius) {
     synchronized (_mutex) {
       Json[] matches;
       foreach (p; _pointsByNamespace.get(namespace, [])) {
@@ -43,26 +48,26 @@ public:
     }
   }
 
-  bool hasNamespace(string namespace) {
+  override bool hasNamespace(string namespace) {
     synchronized (_mutex) {
       return namespace in _pointsByNamespace;
     }
   }
 
-  bool isEmpty(string namespace) {
+  override bool isEmpty(string namespace) {
     synchronized (_mutex) {
       return !(namespace in _pointsByNamespace) || _pointsByNamespace[namespace].empty;
     }
   }
 
-  bool containsPoint(string namespace, Point point) {
+  override bool containsPoint(string namespace, Point point) {
     synchronized (_mutex) {
       return namespace in _pointsByNamespace
         ? _pointsByNamespace[namespace].canFind!(p => p.x == point.x && p.y == point.y) : false;
     }
   }
 
-  bool containsAnyPoint(string namespace, Point[] points) {
+  override bool containsAnyPoint(string namespace, Point[] points) {
     synchronized (_mutex) {
       if (namespace in _pointsByNamespace) {
         auto nsPoints = _pointsByNamespace[namespace];
@@ -72,7 +77,7 @@ public:
     }
   }
 
-  bool containsAllPoints(string namespace, Point[] points) {
+  override bool containsAllPoints(string namespace, Point[] points) {
     synchronized (_mutex) {
       if (namespace in _pointsByNamespace) {
         auto nsPoints = _pointsByNamespace[namespace];
@@ -83,6 +88,46 @@ public:
   }
 
 private:
+  override void add(string id, double x, double y) {
+    addPoint(id, Point(x, y));
+  }
+
+  override void remove(string id) {
+    synchronized (_mutex) {
+      _pointsByNamespace.remove(id);
+    }
+  }
+
+  override string[] findNearby(double x, double y, double radius) {
+    synchronized (_mutex) {
+      string[] namespaces;
+      foreach (namespaceName, points; _pointsByNamespace) {
+        auto hasNearby = points.any!(point => distance(Point(x, y), point) <= radius);
+        if (hasNearby) {
+          namespaces ~= namespaceName;
+        }
+      }
+      return namespaces;
+    }
+  }
+
+  override string findNearest(double x, double y) {
+    synchronized (_mutex) {
+      double bestDistance = double.infinity;
+      string bestNamespace;
+      foreach (namespaceName, points; _pointsByNamespace) {
+        foreach (point; points) {
+          auto d = distance(Point(x, y), point);
+          if (d < bestDistance) {
+            bestDistance = d;
+            bestNamespace = namespaceName;
+          }
+        }
+      }
+      return bestNamespace;
+    }
+  }
+
   double distance(Point a, Point b) {
     auto dx = a.x - b.x;
     auto dy = a.y - b.y;

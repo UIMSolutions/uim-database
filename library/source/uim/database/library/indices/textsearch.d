@@ -3,12 +3,12 @@
 * License: Subject to the terms of the Apache 2.0 license, as written in the included LICENSE.txt file. 
 * Authors: Ozan Nurettin Süel (aka UI-Manufaktur UG *R.I.P*)
 *****************************************************************************************************************/
-module uim.database.library.search.textindex;
+module uim.database.library.indices.textsearch;
 
 import core.sync.mutex : Mutex;
-import uim.database.library;
-
-mixin(ShowModule!());
+import std.algorithm : all, any, sum;
+import std.string : startsWith;
+import uim.database.library.jsoncompat : Json;
 
 @safe:
 

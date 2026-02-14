@@ -1,4 +1,4 @@
-module uim.database.server.app;
+module uim.database.library.app;
 
 import std.array : array;
 import std.conv : to;
@@ -8,10 +8,12 @@ import std.typecons : Nullable;
 import vibe.vibe;
 
 import uim.database.library.config;
+import uim.database.library.indices.textsearch;
+import uim.database.library.indices.spatial;
 import uim.database.library.jsoncompat;
 import uim.database.library.types;
 import uim.database.library.storage;
-import uim.database.library.search_graph_spatial;
+import uim.database.library.search_graph_spatial : GraphStore;
 import uim.database.library.ml;
 import uim.database.library.integration;
 import uim.database.library.virtualization;

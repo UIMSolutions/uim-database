@@ -1,5 +1,8 @@
 module uim.database.library.interfaces.spatialindex;
 
+import uim.database.library.jsoncompat : Json;
+import uim.database.library.types : Point;
+
 interface ISpatialIndex {
     // Adds a spatial object to the index with the given identifier
     void add(string id, double x, double y);

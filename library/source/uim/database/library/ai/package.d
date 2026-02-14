@@ -1,8 +1,8 @@
-module uim.database.library.ml;
+module uim.database.library.ai;
 
 public {
-    import uim.database.library.ml.linear;
-    import uim.database.library.ml.predictive;
+    import uim.database.library.ai.linear;
+    import uim.database.library.ai.predictive;
 }
 
 
