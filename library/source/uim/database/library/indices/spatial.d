@@ -50,7 +50,7 @@ public:
 
   override bool hasNamespace(string namespace) {
     synchronized (_mutex) {
-      return namespace in _pointsByNamespace;
+      return (namespace in _pointsByNamespace) !is null;
     }
   }
 
@@ -87,7 +87,6 @@ public:
     }
   }
 
-private:
   override void add(string id, double x, double y) {
     addPoint(id, Point(x, y));
   }
@@ -128,6 +127,8 @@ private:
     }
   }
 
+private:
+
   double distance(Point a, Point b) {
     auto dx = a.x - b.x;
     auto dy = a.y - b.y;
@@ -142,8 +143,10 @@ unittest {
   index.addPoint("cities", Point(2, 2));
 
   auto result = index.withinRadius("cities", Point(0, 0), 1.5);
-  assert(result.object["matches"].array.length == 2);
+  auto resultObj = result.get!(Json[string]);
+  assert(resultObj["matches"].get!(Json[]).length == 2);
 
   result = index.withinRadius("cities", Point(0, 0), 0.5);
-  assert(result.object["matches"].array.length == 1);
+  resultObj = result.get!(Json[string]);
+  assert(resultObj["matches"].get!(Json[]).length == 1);
 }

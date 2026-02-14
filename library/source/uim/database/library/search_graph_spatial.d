@@ -13,7 +13,7 @@ import std.exception : enforce;
 import std.math : sqrt;
 import std.range : retro;
 import std.array : array;
-import uim.database.library;
+import uim.database.library.jsoncompat : JSONValue;
 
 
 class GraphStore {

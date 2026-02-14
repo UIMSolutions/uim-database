@@ -37,7 +37,7 @@ public:
         auto intercept = meanY - slope * meanX;
 
         synchronized (_mutex) {
-            _models[modelName] = LinearModel(modelName, slope, intercept);
+            _models[modelName] = new LinearModel(modelName, slope, intercept);
         }
 
         return JSONValue([

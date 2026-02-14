@@ -26,7 +26,9 @@ public:
   // Simple whitespace tokenizer; can be enhanced with more complex logic if needed
   void indexText(string table, string text) {
     synchronized (_mutex) {
-      tokenize(text).each!(token => _tokenFreqByTable[table][token] += 1);
+      foreach (token; tokenize(text)) {
+        _tokenFreqByTable[table][token] += 1;
+      }
     }
   }
 
@@ -92,15 +94,15 @@ public:
     synchronized (_mutex) {
       return table in _tokenFreqByTable && term in _tokenFreqByTable[table];
     }
-    ///
-    unittest {
-      auto index = new TextSearchIndex;
-      index.indexText("mytable", "hello world");
-      assert(index.containsTerm("mytable", "hello") == true);
-      assert(index.containsTerm("mytable", "world") == true);
-      assert(index.containsTerm("mytable", "foo") == false);
-      assert(index.containsTerm("othertable", "hello") == false);
-    }
+  }
+
+  unittest {
+    auto index = new TextSearchIndex;
+    index.indexText("mytable", "hello world");
+    assert(index.containsTerm("mytable", "hello") == true);
+    assert(index.containsTerm("mytable", "world") == true);
+    assert(index.containsTerm("mytable", "foo") == false);
+    assert(index.containsTerm("othertable", "hello") == false);
   }
   // #endregion contains
 

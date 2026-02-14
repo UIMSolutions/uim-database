@@ -5,5 +5,11 @@
 *****************************************************************************************************************/
 module uim.database.library.jsoncompat;
 
-import vibe.data.json : Json, parseJsonString;
+public import vibe.data.json : Json, parseJsonString;
+
+alias JSONValue = Json;
+
+JSONValue toJson(T)(T value) {
+	return JSONValue(value);
+}
 

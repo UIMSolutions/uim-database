@@ -44,7 +44,7 @@ CellValue parseValue(DataType t, JSONValue value) {
         case DataType.json:
             return value;
         case DataType.point:
-            auto obj = value.object;
+            auto obj = value.get!(JSONValue[string]);
             return Point(obj["x"].get!double, obj["y"].get!double);
     }
 }

@@ -45,8 +45,9 @@ public:
       enforce(name in _tables, "unknown table");
       auto table = _tables[name];
       Json schema = Json.init;
+      auto schemaObj = schema.get!(Json[string]);
       foreach (col; table.order) {
-        schema.object[col] = Json(to!string(table.columns[col].dataType));
+        schemaObj[col] = Json(to!string(table.columns[col].dataType));
       }
       return [
         "name": Json(name),
@@ -60,14 +61,15 @@ public:
     synchronized (_mutex) {
       enforce(tableName in _tables, "unknown table");
       auto table = _tables[tableName];
+      auto rowObj = row.get!(Json[string]);
 
       foreach (col; table.order) {
-        enforce(col in row.object, "missing column: " ~ col);
+        enforce(col in rowObj, "missing column: " ~ col);
       }
 
       foreach (col; table.order) {
         auto dtype = table.columns[col].dataType;
-        auto value = parseValue(dtype, row.object[col]);
+        auto value = parseValue(dtype, rowObj[col]);
         table.columns[col].data ~= value;
       }
 
@@ -76,8 +78,12 @@ public:
     }
   }
 
-  Json[] selectRows(string tableName, string[] selectColumns, Nullable!string filterColumn = Nullable!string.init, Nullable!string filterValue = Nullable!string
-      .init) {
+  Json[] selectRows(
+    string tableName,
+    string[] selectColumns,
+    Nullable!string filterColumn = Nullable!string.init,
+    Nullable!string filterValue = Nullable!string.init
+  ) {
     synchronized (_mutex) {
       enforce(tableName in _tables, "unknown table");
       auto table = _tables[tableName];
@@ -100,8 +106,9 @@ public:
 
         if (pass) {
           Json row;
+          auto rowObj = row.get!(Json[string]);
           foreach (col; columns) {
-            row.object[col] = toJson(table.columns[col].data[idx]);
+            rowObj[col] = toJson(table.columns[col].data[idx]);
           }
           results ~= row;
         }

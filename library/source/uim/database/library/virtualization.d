@@ -31,9 +31,10 @@ public:
             }
 
             JSONValue row;
+                auto rowObj = row.get!(JSONValue[string]);
             foreach (idx, value; record) {
                 if (idx < header.length) {
-                    row.object[header[idx]] = JSONValue(value);
+                    rowObj[header[idx]] = JSONValue(value);
                 }
             }
             rows ~= row;
