@@ -1,58 +1,39 @@
 // Metadata
-name "uim-framework"
-description "A collection of libraries built up over eight years of experience with the D language."
-homepage "https://www.sueel.de/uim/framework"
+name "uim-database"
+description "A database abstraction layer for D, supporting multiple database backends and providing a unified API for database operations."
+homepage "https://www.sueel.de/uim/database"
 authors "Ozan Nurettin Süel" "UI Manufaktur"
 copyright "Copyright © 2018-2026, Ozan Nurettin Süel"
 license "Apache-2.0"
 
 // Target
 targetType "library"
-targetName "uim-framework"
+targetName "uim-database"
 
 // External dependencies
-dependency "dlib" version="~>1.3.2"
-dependency "colored" version="~>0.0.31"
-dependency "vibe-d" version="~>0.10.3"
-dependency "dyaml" version="~>0.10.0"
+dependency "uim-framework" version="~>26.2.2"
 
 // Internal Dependencies
-dependency ":compilers" version="*"
-dependency ":core" version="*"
-dependency ":css" version="*"
-dependency ":errors" version="*"
-dependency ":events" version="*"
-dependency ":filesystems" version="*"
-dependency ":html" version="*"
-dependency ":i18n" version="*"
-dependency ":jsons" version="*"
-dependency ":logging" version="*"
-dependency ":numerical" version="*"
-dependency ":oop" version="*"
-dependency ":services" version="*"
+dependency ":server" version="*"
+dependency ":library" version="*"
+dependency ":client" version="*"
+dependency ":desktop" version="*"
+dependency ":admin" version="*"
 
 // Neural networks
 dependency ":neural" version="*"
 
 // Source files
-sourceFiles "./source/uim/framework.d"
+sourceFiles "./source/uim/database.d"
 
 // Subpackages
-subPackage "compilers"
-subPackage "core"
-subPackage "css"
-subPackage "errors"
-subPackage "events"
-subPackage "html"
-subPackage "i18n"
-subPackage "jsons"
-subPackage "logging"
-subPackage "numerical"
+subPackage "server"
+subPackage "library"
+subPackage "client"
+subPackage "desktop"
+subPackage "admin"
 subPackage "neural"
-subPackage "oop"
 subPackage "security"
-subPackage "services"
-subPackage "filesystems"
 
 buildRequirements "allowWarnings" "silenceDeprecations"
 buildOptions "ignoreDeprecations" "debugInfo"

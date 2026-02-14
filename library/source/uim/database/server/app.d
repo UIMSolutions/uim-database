@@ -1,4 +1,4 @@
-module uim-database-base.app;
+module uim.database.server.app;
 
 import std.array : array;
 import std.conv : to;

@@ -7,4 +7,3 @@ module uimdb.jsoncompat;
 
 import vibe.data.json : Json, parseJsonString;
 
-alias JSONValue = Json;
