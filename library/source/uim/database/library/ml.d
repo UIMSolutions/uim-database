@@ -1,8 +1,8 @@
-module uimdb.ml;
+module uim.database.library.ml;
 
 import core.sync.mutex : Mutex;
 import std.exception : enforce;
-import uimdb.jsoncompat : JSONValue;
+import uim.database.library.jsoncompat : JSONValue;
 
 struct LinearModel {
     string name;

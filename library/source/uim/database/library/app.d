@@ -7,15 +7,15 @@ import std.string : format;
 import std.typecons : Nullable;
 import vibe.vibe;
 
-import uimdb.config;
-import uimdb.jsoncompat;
-import uimdb.types;
-import uimdb.storage;
-import uimdb.search_graph_spatial;
-import uimdb.ml;
-import uimdb.integration;
-import uimdb.virtualization;
-import uimdb.ha_security;
+import uim.database.library.config;
+import uim.database.library.jsoncompat;
+import uim.database.library.types;
+import uim.database.library.storage;
+import uim.database.library.search_graph_spatial;
+import uim.database.library.ml;
+import uim.database.library.integration;
+import uim.database.library.virtualization;
+import uim.database.library.ha_security;
 
 shared static this() {
     auto cfg = loadConfig();
@@ -225,5 +225,20 @@ JSONValue readBody(HTTPServerRequest req) {
 }
 
 void withAuth(HTTPServerRequest req, ApiSecurity security) {
-    security.authorize(req);
+    static class HeaderApiKeyReader : ApiKeyReader {
+    private:
+        string _apiKey;
+
+    public:
+        this(string apiKey) {
+            _apiKey = apiKey;
+        }
+
+        override string readApiKey() {
+            return _apiKey;
+        }
+    }
+
+    auto reader = new HeaderApiKeyReader(req.headers.get("X-API-Key"));
+    security.authorize(reader);
 }

@@ -1,11 +1,11 @@
-module uimdb.integration;
+module uim.database.library.integration;
 
 import std.exception : enforce;
 import std.file : write, tempDir;
 import std.path : buildPath;
 import std.process : execute;
 import std.uuid : randomUUID;
-import uimdb.jsoncompat : JSONValue;
+import uim.database.library.jsoncompat : JSONValue;
 
 class LanguageBridge {
 public:

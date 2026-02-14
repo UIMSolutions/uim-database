@@ -3,7 +3,7 @@
 * License: Subject to the terms of the Apache 2.0 license, as written in the included LICENSE.txt file. 
 * Authors: Ozan Nurettin Süel (aka UI-Manufaktur UG *R.I.P*)
 *****************************************************************************************************************/
-module uimdb.search_graph_spatial;
+module uim.database.library.search_graph_spatial;
 
 import core.sync.mutex : Mutex;
 import std.algorithm.searching : canFind;
@@ -13,8 +13,8 @@ import std.exception : enforce;
 import std.math : sqrt;
 import std.range : retro;
 import std.array : array;
-import uimdb.jsoncompat : JSONValue;
-import uimdb.types : Point;
+import uim.database.library.jsoncompat : JSONValue;
+import uim.database.library.types : Point;
 
 class TextSearchIndex {
 private:

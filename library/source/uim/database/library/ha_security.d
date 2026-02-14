@@ -3,13 +3,16 @@
 * License: Subject to the terms of the Apache 2.0 license, as written in the included LICENSE.txt file. 
 * Authors: Ozan Nurettin Süel (aka UI-Manufaktur UG *R.I.P*)
 *****************************************************************************************************************/
-module uimdb.ha_security;
+module uim.database.library.ha_security;
 
 import core.sync.mutex : Mutex;
-import std.datetime : Clock, SysTime, seconds;
+import std.datetime : Clock;
 import std.exception : enforce;
-import uimdb.jsoncompat : JSONValue;
-import vibe.http.server : HTTPServerRequest;
+import uim.database.library.jsoncompat : JSONValue;
+
+interface ApiKeyReader {
+    string readApiKey();
+}
 
 class ApiSecurity {
 private:
@@ -20,9 +23,12 @@ public:
         _apiKey = apiKey;
     }
 
-    void authorize(const HTTPServerRequest req) {
-        auto key = req.headers.get("X-API-Key");
+    void authorize(string key) {
         enforce(key == _apiKey, "unauthorized");
+    }
+
+    void authorize(ApiKeyReader reader) {
+        authorize(reader.readApiKey());
     }
 }
 

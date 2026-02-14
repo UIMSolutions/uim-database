@@ -3,11 +3,11 @@
 * License: Subject to the terms of the Apache 2.0 license, as written in the included LICENSE.txt file. 
 * Authors: Ozan Nurettin Süel (aka UI-Manufaktur UG *R.I.P*)
 *****************************************************************************************************************/
-module uimdb.types;
+module uim.database.library.types;
 
 import std.datetime : SysTime, Clock;
 import std.variant : Algebraic;
-import uimdb.jsoncompat : JSONValue;
+import uim.database.library.jsoncompat : JSONValue;
 
 struct Point {
     double x;

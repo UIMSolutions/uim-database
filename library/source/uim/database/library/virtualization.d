@@ -3,13 +3,13 @@
 * License: Subject to the terms of the Apache 2.0 license, as written in the included LICENSE.txt file. 
 * Authors: Ozan Nurettin Süel (aka UI-Manufaktur UG *R.I.P*)
 *****************************************************************************************************************/
-module uimdb.virtualization;
+module uim.database.library.virtualization;
 
 import std.csv : csvReader;
 import std.exception : enforce;
 import std.file : exists;
 import std.stdio : File;
-import uimdb.jsoncompat : JSONValue;
+import uim.database.library.jsoncompat : JSONValue;
 
 class DataVirtualization {
 public:
