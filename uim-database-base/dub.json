@@ -1,0 +1,12 @@
+{
+  "name": "uim-hana-cloud",
+  "description": "SAP HANA Cloud-like in-memory HTAP database server in D with vibe.d",
+  "authors": ["uim"],
+  "license": "MIT",
+  "targetType": "executable",
+  "targetName": "uim-hana-cloud",
+  "dependencies": {
+    "uim-framework": "~>26.2.2"
+  },
+  "dflags": ["-preview=dip1000"]
+}
