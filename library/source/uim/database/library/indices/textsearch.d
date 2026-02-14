@@ -27,7 +27,6 @@ public:
     }
   }
 
-
   bool isIndexed(string table) {
     synchronized (_mutex) {
       return table in _tokenFreqByTable;
@@ -51,6 +50,13 @@ public:
       return false;
     }
   }
+  /// 
+  unittest {
+    auto index = new TextSearchIndex;
+    index.indexText("mytable", "hello world");
+    assert(index.containsAllTerms("mytable", ["hello", "world"]) == true);
+    assert(index.containsAllTerms("mytable", ["hello", "foo"]) == false);
+  }
 
   // Checks if any of the specified terms exist in the given table
   bool containsAnyTerm(string table, string[] terms) {
@@ -62,6 +68,13 @@ public:
       return false;
     }
   }
+  /// 
+  unittest {
+    auto index = new TextSearchIndex;
+    index.indexText("mytable", "hello world");
+    assert(index.containsAnyTerm("mytable", ["hello", "foo"]) == true);
+    assert(index.containsAnyTerm("mytable", ["foo", "bar"]) == false);
+  }
 
   /**    
     * Checks if the specified term exists in the given table
@@ -72,7 +85,7 @@ public:
     *
     * Returns: true if the term exists in the table, false otherwise
     */
-    bool containsTerm(string table, string term) {
+  bool containsTerm(string table, string term) {
     synchronized (_mutex) {
       return table in _tokenFreqByTable && term in _tokenFreqByTable[table];
     }
@@ -115,6 +128,7 @@ public:
     }
   }
 
+  // #region search
   // Returns the count of how many times the term appears in the specified table
   Json search(string table, string term) {
     synchronized (_mutex) {
@@ -132,6 +146,67 @@ public:
       ].toJson;
     }
   }
+
+  Json search(string table, string[] terms) {
+    synchronized (_mutex) {
+      size_t totalHits = 0;
+      if (table in _tokenFreqByTable) {
+        auto tableMap = _tokenFreqByTable[table];
+        foreach (term; terms) {
+          if (term in tableMap) {
+            totalHits += tableMap[term];
+          }
+        }
+      }
+      return [
+        "table": Json(table),
+        "terms": Json(terms),
+        "hits": Json(cast(long)totalHits)
+      ].toJson;
+    }
+  }
+
+  Json searchAll(string table) {
+    synchronized (_mutex) {
+      size_t totalHits = 0;
+      if (table in _tokenFreqByTable) {
+        auto tableMap = _tokenFreqByTable[table];
+        totalHits = tableMap.values.sum;
+      }
+      return [
+        "table": Json(table),
+        "hits": Json(cast(long)totalHits)
+      ].toJson;
+    }
+  }
+
+  Json searchUniqueTerms(string table) {
+    synchronized (_mutex) {
+      size_t uniqueTerms = 0;
+      if (table in _tokenFreqByTable) {
+        auto tableMap = _tokenFreqByTable[table];
+        uniqueTerms = tableMap.length;
+      }
+      return [
+        "table": Json(table),
+        "uniqueTerms": Json(cast(long)uniqueTerms)
+      ].toJson;
+    }
+  }
+
+  Json searchTermFrequencies(string table) {
+    synchronized (_mutex) {
+      Json result = ["table": Json(table), "terms": Json()];
+      if (table in _tokenFreqByTable) {
+        auto tableMap = _tokenFreqByTable[table];
+        foreach (term, freq; tableMap) {
+          result["terms"][term] = Json(cast(long)freq);
+        }
+      }
+      return result.toJson;
+    }
+  }
+  // #endregion search
 
 private:
   string[] tokenize(string input) {
