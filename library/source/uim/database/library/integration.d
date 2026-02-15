@@ -5,31 +5,31 @@ import std.file : write, tempDir;
 import std.path : buildPath;
 import std.process : execute;
 import std.uuid : randomUUID;
-import uim.database.library.jsoncompat : JSONValue;
+import uim.database.library.jsoncompat : Json;
 
 class LanguageBridge {
 public:
-  JSONValue runPython(string code, JSONValue payload) {
+  Json runPython(string code, Json payload) {
     auto scriptPath = buildPath(tempDir(), "uim_py_" ~ randomUUID().toString() ~ ".py");
     auto program = code ~ "\n";
     write(scriptPath, program);
     auto result = execute(["python3", scriptPath], payload.toString());
     return [
-      "exitCode": JSONValue(result.status),
-      "stdout": JSONValue(result.output),
-      "stderr": JSONValue(result.stderrOutput)
+      "exitCode": Json(result.status),
+      "stdout": Json(result.output),
+      "stderr": Json(result.stderrOutput)
     ].toJson;
   }
 
-  JSONValue runR(string code, JSONValue payload) {
+  Json runR(string code, Json payload) {
     auto scriptPath = buildPath(tempDir(), "uim_r_" ~ randomUUID().toString() ~ ".R");
     auto program = code ~ "\n";
     write(scriptPath, program);
     auto result = execute(["Rscript", scriptPath], payload.toString());
     return [
-      "exitCode": JSONValue(result.status),
-      "stdout": JSONValue(result.output),
-      "stderr": JSONValue(result.stderrOutput)
+      "exitCode": Json(result.status),
+      "stdout": Json(result.output),
+      "stderr": Json(result.stderrOutput)
     ].toJson;
   }
 }

@@ -9,7 +9,7 @@ import core.sync.mutex : Mutex;
 import std.datetime : Clock;
 import std.exception : enforce;
 import uim.database.library.interfaces.apikeyreader : ApiKeyReader;
-import uim.database.library.jsoncompat : JSONValue;
+import uim.database.library.jsoncompat : Json;
 
 
 class ApiSecurity {
@@ -33,25 +33,25 @@ public:
 class ReplicationLog {
 private:
     Mutex _mutex;
-    JSONValue[] _events;
+    Json[] _events;
 
 public:
     this() {
         _mutex = new Mutex;
     }
 
-    void append(JSONValue event) {
+    void append(Json event) {
         synchronized (_mutex) {
             _events ~= event;
         }
     }
 
-    JSONValue status() {
+    Json status() {
         synchronized (_mutex) {
-            return JSONValue([
-                "mode": JSONValue("single-node-with-replication-log"),
-                "replicationEvents": JSONValue(cast(long)_events.length),
-                "timestamp": JSONValue(Clock.currTime().toISOExtString())
+            return Json([
+                "mode": Json("single-node-with-replication-log"),
+                "replicationEvents": Json(cast(long)_events.length),
+                "timestamp": Json(Clock.currTime().toISOExtString())
             ]);
         }
     }

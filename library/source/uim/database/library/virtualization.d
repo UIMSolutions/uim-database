@@ -9,11 +9,11 @@ import std.csv : csvReader;
 import std.exception : enforce;
 import std.file : exists;
 import std.stdio : File;
-import uim.database.library.jsoncompat : JSONValue;
+import uim.database.library.jsoncompat : Json;
 
 class DataVirtualization {
 public:
-    JSONValue queryCsv(string path, size_t limit = 100) {
+    Json queryCsv(string path, size_t limit = 100) {
         enforce(exists(path), "CSV file not found");
 
         auto file = File(path, "r");
@@ -21,7 +21,7 @@ public:
 
         bool headerCaptured = false;
         string[] header;
-        JSONValue[] rows;
+        Json[] rows;
 
         foreach (record; reader) {
             if (!headerCaptured) {
@@ -30,11 +30,11 @@ public:
                 continue;
             }
 
-            JSONValue row;
-                auto rowObj = row.get!(JSONValue[string]);
+            Json row;
+                auto rowObj = row.get!(Json[string]);
             foreach (idx, value; record) {
                 if (idx < header.length) {
-                    rowObj[header[idx]] = JSONValue(value);
+                    rowObj[header[idx]] = Json(value);
                 }
             }
             rows ~= row;
@@ -43,9 +43,9 @@ public:
             }
         }
 
-        return JSONValue([
-            "source": JSONValue(path),
-            "rows": JSONValue(rows)
+        return Json([
+            "source": Json(path),
+            "rows": Json(rows)
         ]);
     }
 }

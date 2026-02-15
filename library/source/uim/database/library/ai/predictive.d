@@ -3,7 +3,7 @@ module uim.database.library.ai.predictive;
 import core.sync.mutex : Mutex;
 import std.exception : enforce;
 import uim.database.library.ai.linear : LinearModel;
-import uim.database.library.jsoncompat : JSONValue;
+import uim.database.library.jsoncompat : Json;
 
 
 class PredictiveLibrary {
@@ -16,7 +16,7 @@ public:
         _mutex = new Mutex;
     }
 
-    JSONValue trainLinear(string modelName, double[] x, double[] y) {
+    Json trainLinear(string modelName, double[] x, double[] y) {
         enforce(x.length == y.length, "x and y length mismatch");
         enforce(x.length > 1, "at least 2 samples required");
 
@@ -40,22 +40,22 @@ public:
             _models[modelName] = new LinearModel(modelName, slope, intercept);
         }
 
-        return JSONValue([
-            "model": JSONValue(modelName),
-            "slope": JSONValue(slope),
-            "intercept": JSONValue(intercept)
+        return Json([
+            "model": Json(modelName),
+            "slope": Json(slope),
+            "intercept": Json(intercept)
         ]);
     }
 
-    JSONValue predictLinear(string modelName, double x) {
+    Json predictLinear(string modelName, double x) {
         synchronized (_mutex) {
             enforce(modelName in _models, "unknown model");
             auto m = _models[modelName];
             auto y = m.slope * x + m.intercept;
-            return JSONValue([
-                "model": JSONValue(modelName),
-                "x": JSONValue(x),
-                "prediction": JSONValue(y)
+            return Json([
+                "model": Json(modelName),
+                "x": Json(x),
+                "prediction": Json(y)
             ]);
         }
     }

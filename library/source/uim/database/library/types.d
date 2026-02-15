@@ -7,7 +7,7 @@ module uim.database.library.types;
 
 import std.datetime : SysTime, Clock;
 import std.variant : Algebraic;
-import uim.database.library.jsoncompat : JSONValue;
+import uim.database.library.jsoncompat : Json;
 
 struct Point {
     double x;
@@ -24,9 +24,9 @@ enum DataType {
     point
 }
 
-alias CellValue = Algebraic!(long, double, string, bool, SysTime, JSONValue, Point);
+alias CellValue = Algebraic!(long, double, string, bool, SysTime, Json, Point);
 
-CellValue parseValue(DataType t, JSONValue value) {
+CellValue parseValue(DataType t, Json value) {
     final switch (t) {
         case DataType.int64:
             return cast(long)value.get!long;
@@ -37,27 +37,27 @@ CellValue parseValue(DataType t, JSONValue value) {
         case DataType.boolean:
             return value.get!bool;
         case DataType.timestamp:
-            if (value.type == JSONValue.Type.string) {
+            if (value.type == Json.Type.string) {
                 return Clock.currTime();
             }
             return Clock.currTime();
         case DataType.json:
             return value;
         case DataType.point:
-            auto obj = value.get!(JSONValue[string]);
+            auto obj = value.get!(Json[string]);
             return Point(obj["x"].get!double, obj["y"].get!double);
     }
 }
 
-JSONValue toJson(CellValue value) {
+Json toJson(CellValue value) {
     return value.match!(
-        (long v) => JSONValue(v),
-        (double v) => JSONValue(v),
-        (string v) => JSONValue(v),
-        (bool v) => JSONValue(v),
-        (SysTime v) => JSONValue(v.toISOExtString()),
-        (JSONValue v) => v,
-        (Point p) => JSONValue(["x": JSONValue(p.x), "y": JSONValue(p.y)])
+        (long v) => Json(v),
+        (double v) => Json(v),
+        (string v) => Json(v),
+        (bool v) => Json(v),
+        (SysTime v) => Json(v.toISOExtString()),
+        (Json v) => v,
+        (Point p) => Json(["x": Json(p.x), "y": Json(p.y)])
     );
 }
 

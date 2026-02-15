@@ -35,15 +35,15 @@ shared static this() {
     auto router = new URLRouter();
 
     router.get("/health", (req, res) {
-        res.writeJsonBody(JSONValue(["status": JSONValue("ok")]));
+        res.writeJsonBody(["status": Json("ok")].toJson);
     });
 
     router.post("/api/v1/tables", (req, res) {
         withAuth(req, security);
         auto body = readBody(req);
         auto name = body["name"].get!string;
-        auto bodyObj = body.get!(JSONValue[string]);
-        auto schemaObj = body["schema"].get!(JSONValue[string]);
+        auto bodyObj = body.get!(Json[string]);
+        auto schemaObj = body["schema"].get!(Json[string]);
 
         DataType[string] schema;
         foreach (colName, dataTypeJson; schemaObj) {
@@ -51,15 +51,15 @@ shared static this() {
         }
 
         store.createTable(name, schema);
-        replication.append(JSONValue(["event": JSONValue("create_table"), "table": JSONValue(name)]));
-        res.writeJsonBody(JSONValue(["ok": JSONValue(true)]));
+        replication.append(Json(["event": Json("create_table"), "table": Json(name)]));
+        res.writeJsonBody(Json(["ok": Json(true)]));
     });
 
     router.post("/api/v1/rows/:table", (req, res) {
         withAuth(req, security);
         auto tableName = req.params["table"];
         auto body = readBody(req);
-        auto bodyObj = body.get!(JSONValue[string]);
+        auto bodyObj = body.get!(Json[string]);
         auto count = store.insertRow(tableName, body);
 
         if ("textColumn" in req.query) {
@@ -71,19 +71,19 @@ shared static this() {
             spatial.addPoint(req.query["pointNamespace"], Point(body["x"].get!double, body["y"].get!double));
         }
 
-        replication.append(JSONValue(["event": JSONValue("insert"), "table": JSONValue(tableName)]));
-        res.writeJsonBody(JSONValue(["rows": JSONValue(cast(long)count)]));
+        replication.append(Json(["event": Json("insert"), "table": Json(tableName)]));
+        res.writeJsonBody(Json(["rows": Json(cast(long)count)]));
     });
 
     router.post("/api/v1/query/select", (req, res) {
         withAuth(req, security);
         auto body = readBody(req);
-        auto bodyObj = body.get!(JSONValue[string]);
+        auto bodyObj = body.get!(Json[string]);
 
         auto table = body["table"].get!string;
         string[] cols;
         if ("columns" in bodyObj) {
-            foreach (c; body["columns"].get!(JSONValue[])) {
+            foreach (c; body["columns"].get!(Json[])) {
                 cols ~= c.get!string;
             }
         }
@@ -96,7 +96,7 @@ shared static this() {
         }
 
         auto rows = store.selectRows(table, cols, filterCol, filterVal);
-        res.writeJsonBody(JSONValue(["rows": JSONValue(rows)]));
+        res.writeJsonBody(Json(["rows": Json(rows)]));
     });
 
     router.post("/api/v1/query/aggregate", (req, res) {
@@ -107,14 +107,14 @@ shared static this() {
             body["function"].get!string,
             body["column"].get!string
         );
-        res.writeJsonBody(JSONValue(["result": result]));
+        res.writeJsonBody(Json(["result": result]));
     });
 
     router.post("/api/v1/text/index", (req, res) {
         withAuth(req, security);
         auto body = readBody(req);
         textSearch.indexText(body["table"].get!string, body["text"].get!string);
-        res.writeJsonBody(JSONValue(["ok": JSONValue(true)]));
+        res.writeJsonBody(Json(["ok": Json(true)]));
     });
 
     router.post("/api/v1/text/search", (req, res) {
@@ -128,7 +128,7 @@ shared static this() {
         withAuth(req, security);
         auto body = readBody(req);
         graph.addEdge(body["from"].get!string, body["to"].get!string);
-        res.writeJsonBody(JSONValue(["ok": JSONValue(true)]));
+        res.writeJsonBody(Json(["ok": Json(true)]));
     });
 
     router.post("/api/v1/graph/path", (req, res) {
@@ -152,14 +152,14 @@ shared static this() {
     router.post("/api/v1/ml/pal/linear/train", (req, res) {
         withAuth(req, security);
         auto body = readBody(req);
-        auto bodyObj = body.get!(JSONValue[string]);
+        auto bodyObj = body.get!(Json[string]);
 
         double[] x;
-        foreach (v; body["x"].get!(JSONValue[])) {
+        foreach (v; body["x"].get!(Json[])) {
             x ~= v.get!double;
         }
         double[] y;
-        foreach (v; body["y"].get!(JSONValue[])) {
+        foreach (v; body["y"].get!(Json[])) {
             y ~= v.get!double;
         }
 
@@ -178,8 +178,8 @@ shared static this() {
         withAuth(req, security);
         enforce(cfg.allowExternalCodeExecution, "external code execution disabled");
         auto body = readBody(req);
-        auto bodyObj = body.get!(JSONValue[string]);
-        auto payload = ("payload" in bodyObj) ? body["payload"] : JSONValue();
+        auto bodyObj = body.get!(Json[string]);
+        auto payload = ("payload" in bodyObj) ? body["payload"] : Json();
         auto result = bridge.runPython(body["code"].get!string, payload);
         res.writeJsonBody(result);
     });
@@ -188,8 +188,8 @@ shared static this() {
         withAuth(req, security);
         enforce(cfg.allowExternalCodeExecution, "external code execution disabled");
         auto body = readBody(req);
-        auto bodyObj = body.get!(JSONValue[string]);
-        auto payload = ("payload" in bodyObj) ? body["payload"] : JSONValue();
+        auto bodyObj = body.get!(Json[string]);
+        auto payload = ("payload" in bodyObj) ? body["payload"] : Json();
         auto result = bridge.runR(body["code"].get!string, payload);
         res.writeJsonBody(result);
     });
@@ -197,9 +197,9 @@ shared static this() {
     router.post("/api/v1/virtualization/csv/query", (req, res) {
         withAuth(req, security);
         auto body = readBody(req);
-        auto bodyObj = body.get!(JSONValue[string]);
+        auto bodyObj = body.get!(Json[string]);
         auto path = body["path"].get!string;
-        auto limitJson = ("limit" in bodyObj) ? body["limit"] : JSONValue(100L);
+        auto limitJson = ("limit" in bodyObj) ? body["limit"] : Json(100L);
         auto limit = cast(size_t)limitJson.get!long;
         auto result = virtualization.queryCsv(path, limit);
         res.writeJsonBody(result);
@@ -214,7 +214,7 @@ shared static this() {
         withAuth(req, security);
         auto body = readBody(req);
         replication.append(body);
-        res.writeJsonBody(JSONValue(["ok": JSONValue(true)]));
+        res.writeJsonBody(Json(["ok": Json(true)]));
     });
 
     auto settings = new HTTPServerSettings();
@@ -229,9 +229,9 @@ void main() {
     runApplication();
 }
 
-JSONValue readBody(HTTPServerRequest req) {
+Json readBody(HTTPServerRequest req) {
     auto txt = req.bodyReader.readAllUTF8();
-    return txt.length ? parseJsonString(txt) : JSONValue();
+    return txt.length ? parseJsonString(txt) : Json();
 }
 
 void withAuth(HTTPServerRequest req, ApiSecurity security) {

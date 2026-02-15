@@ -12,7 +12,6 @@ import uim.database.library.jsoncompat : Json, toJson;
 
 @safe:
 
-
 class TextSearchIndex {
 private:
   Mutex _mutex;

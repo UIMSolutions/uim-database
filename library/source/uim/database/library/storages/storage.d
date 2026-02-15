@@ -11,7 +11,7 @@ import std.conv : to;
 import std.exception : enforce;
 import std.array : appender;
 import std.typecons : Nullable;
-import uim.database.library.jsoncompat : JSONValue;
+import uim.database.library.jsoncompat : Json;
 import uim.database.library.types;
 
 struct Column {

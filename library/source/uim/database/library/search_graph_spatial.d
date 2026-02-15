@@ -13,7 +13,7 @@ import std.exception : enforce;
 import std.math : sqrt;
 import std.range : retro;
 import std.array : array;
-import uim.database.library.jsoncompat : JSONValue;
+import uim.database.library.jsoncompat : Json;
 
 
 class GraphStore {
@@ -32,10 +32,10 @@ public:
         }
     }
 
-    JSONValue findPath(string start, string target) {
+    Json findPath(string start, string target) {
         synchronized (_mutex) {
             if (start == target) {
-                return JSONValue(["path": JSONValue([JSONValue(start)])]);
+                return Json(["path": Json([Json(start)])]);
             }
 
             string[string] parent;
@@ -57,7 +57,7 @@ public:
             }
 
             if (target !in parent) {
-                return JSONValue(["path": JSONValue([])]);
+                return Json(["path": Json([])]);
             }
 
             string[] path;
@@ -68,11 +68,11 @@ public:
             }
             path = path.retro.array;
 
-            JSONValue[] resultPath;
+            Json[] resultPath;
             foreach (p; path) {
-                resultPath ~= JSONValue(p);
+                resultPath ~= Json(p);
             }
-            return JSONValue(["path": JSONValue(resultPath)]);
+            return Json(["path": Json(resultPath)]);
         }
     }
 }
